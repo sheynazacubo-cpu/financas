@@ -129,9 +129,7 @@
     outs.forEach((t) => { byCat[t.category] = (byCat[t.category] || 0) + Number(t.amount); });
     const total = outs.reduce((a, t) => a + Number(t.amount), 0);
     const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-    $("cats").innerHTML = rows.length ? rows.map(([c, v]) =>
-      '<div class="catbar"><div class="top"><span>' + esc(c) + "</span><b>" + money(v) + '</b></div><div class="bar"><span style="width:' +
-      Math.max(2, (v / total) * 100).toFixed(1) + '%"></span></div></div>').join("") : '<p class="muted">Sem saídas registadas este mês.</p>';
+    $("cats").innerHTML = rows.length ? pieHTML(rows, total) : '<p class="muted">Sem saídas registadas este mês.</p>';
     fillList($("recent"), txs.slice(0, 8), "Ainda sem registos. Toque em + Entrada ou − Saída.");
   }
 
@@ -143,6 +141,26 @@
     const s = startOfMonth(relAnchor);
     const e = new Date(s.getFullYear(), s.getMonth() + 1, 0);
     return { from: s, to: e, title: MONTHS[s.getMonth()] + " " + s.getFullYear() };
+  }
+
+  const PIE_COLORS = ["#2f7ed8", "#e8743b", "#19a979", "#d64e8a", "#945ecf", "#e5b52b", "#13a4b4", "#6c8893", "#bf399e", "#8b9e2a"];
+  function pieHTML(rows, total) {
+    const R = 70, C = 2 * Math.PI * R;
+    let offset = 0, segs = "", legend = "";
+    rows.forEach(([c, v], i) => {
+      const col = PIE_COLORS[i % PIE_COLORS.length];
+      const len = (v / total) * C;
+      const pct = Math.round((v / total) * 100);
+      segs += rows.length === 1
+        ? '<circle r="' + R + '" cx="90" cy="90" fill="none" stroke="' + col + '" stroke-width="36"/>'
+        : '<circle r="' + R + '" cx="90" cy="90" fill="none" stroke="' + col + '" stroke-width="36" stroke-dasharray="' +
+          Math.max(0, len - 1.5).toFixed(2) + " " + (C - Math.max(0, len - 1.5)).toFixed(2) + '" stroke-dashoffset="' + (-offset).toFixed(2) + '"/>';
+      offset += len;
+      legend += '<li><i style="background:' + col + '"></i><span>' + esc(c) + '</span><b>' + money(v) + ' <span class="muted small">' + pct + "%</span></b></li>";
+    });
+    return '<div class="pie"><svg viewBox="0 0 180 180" role="img" aria-label="Gastos por categoria"><g transform="rotate(-90 90 90)">' + segs +
+      '</g><text x="90" y="86" text-anchor="middle" class="pie-l">Total</text><text x="90" y="106" text-anchor="middle" class="pie-v">' +
+      esc(money(total)) + '</text></svg><ul class="legend">' + legend + "</ul></div>";
   }
 
   function renderRel() {
