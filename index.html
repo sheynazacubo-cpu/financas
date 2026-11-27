@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Finanças da Família</title>
+<meta name="theme-color" content="#1f6f50">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Finanças">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{
+  --bg:#f6f5f0; --card:#ffffff; --ink:#1c1f1d; --muted:#6b716d; --line:#e4e2da;
+  --brand:#1f6f50; --brand-ink:#ffffff; --in:#1f7a4a; --out:#b23b2e; --soft:#eef4f0;
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 96px}
+header.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
+header.top h1{font-size:20px;margin:0}
+.who{font-size:13px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.balance{background:var(--brand);color:var(--brand-ink);border:none}
+.balance .lbl{opacity:.85;font-size:14px}
+.balance .big{font-size:34px;font-weight:700;margin:2px 0 10px;letter-spacing:-.5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pill{background:rgba(255,255,255,.14);border-radius:12px;padding:8px 10px;font-size:14px}
+.pill b{display:block;font-size:17px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.btn{border:none;border-radius:14px;padding:14px;font-weight:600;cursor:pointer;font-size:16px}
+.btn.in{background:var(--in);color:#fff}.btn.out{background:var(--out);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.primary{background:var(--brand);color:#fff;width:100%}
+h2{font-size:16px;margin:0 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:none}
+.list .meta{flex:1;min-width:0}
+.list .meta .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amt{font-weight:700;white-space:nowrap}
+.amt.in{color:var(--in)}.amt.out{color:var(--out)}
+.catbar{margin:8px 0}
+.catbar .top{display:flex;justify-content:space-between;font-size:14px}
+.bar{height:8px;background:var(--soft);border-radius:6px;overflow:hidden;margin-top:4px}
+.bar span{display:block;height:100%;background:var(--out)}
+.seg{display:flex;background:var(--soft);border-radius:12px;padding:4px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:transparent;padding:8px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+.nav div{display:flex;max-width:560px;width:100%}
+.nav button{flex:1;border:none;background:none;padding:12px 4px;font-size:13px;color:var(--muted);cursor:pointer}
+.nav button.on{color:var(--brand);font-weight:700}
+.view{display:none}.view.on{display:block}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .h{font-size:12px;color:var(--muted);padding:4px 0}
+.cal button{border:1px solid transparent;background:none;border-radius:10px;padding:6px 0 4px;cursor:pointer;min-height:44px}
+.cal button.other{opacity:.35}
+.cal button.sel{border-color:var(--brand);background:var(--soft)}
+.cal button.today{font-weight:700}
+.dots{display:flex;gap:3px;justify-content:center;height:6px;margin-top:2px}
+.dots i{width:6px;height:6px;border-radius:3px;display:block}
+.dots .i{background:var(--in)}.dots .o{background:var(--out)}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.calhead button{border:1px solid var(--line);background:var(--card);border-radius:10px;width:40px;height:36px;cursor:pointer}
+.chart{display:flex;align-items:flex-end;gap:4px;height:120px;margin:8px 0 4px}
+.chart .c{flex:1;display:flex;gap:1px;align-items:flex-end;height:100%}
+.chart .c span{flex:1;border-radius:3px 3px 0 0;min-height:1px}
+.chart .c .i{background:var(--in)}.chart .c .o{background:var(--out)}
+.summary{background:var(--soft);border-radius:12px;padding:12px;font-size:15px}
+dialog{border:none;border-radius:20px;padding:0;width:min(520px,calc(100% - 24px));background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.form{padding:18px}
+.form label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
+.form input,.form select,.form textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.form .amount{font-size:24px;font-weight:700}
+.form .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.err{color:var(--out);font-size:14px;min-height:20px;margin-top:8px}
+.login{max-width:380px;margin:12vh auto 0;padding:0 16px}
+.login h1{font-size:24px;margin:0 0 6px}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.linkbtn{background:none;border:none;color:var(--brand);font-weight:600;cursor:pointer;padding:4px}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#121513;--card:#1b1f1c;--ink:#ecefec;--muted:#9aa29c;--line:#2b312d;--soft:#223029;--brand:#2b8a63;--in:#3fae73;--out:#e0685a}
+}
+@media print{
+  .nav,.actions,header.top button,.seg,.noprint{display:none!important}
+  body{background:#fff}.view{display:none!important}#v-rel{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login" hidden>
+  <h1>Finanças da Família</h1>
+  <p class="muted">Entre com o email e a palavra-passe da família. Use o mesmo login nos dois telemóveis.</p>
+  <form id="loginForm" class="form" style="padding:0">
+    <label for="lEmail">Email</label>
+    <input id="lEmail" type="email" autocomplete="username" required>
+    <label for="lPass">Palavra-passe</label>
+    <input id="lPass" type="password" autocomplete="current-password" required>
+    <button class="btn primary" style="margin-top:16px" type="submit">Entrar</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1>Finanças da Família</h1>
+        <div class="who" id="whoLine"></div>
+      </div>
+      <button class="linkbtn" id="settingsBtn" aria-label="Definições">Definições</button>
+    </header>
+
+    <!-- INÍCIO -->
+    <section class="view on" id="v-home">
+      <div class="card balance">
+        <div class="lbl">Saldo atual</div>
+        <div class="big" id="bal">0 MT</div>
+        <div class="row2">
+          <div class="pill">Entradas<b id="totIn">0 MT</b></div>
+          <div class="pill">Saídas<b id="totOut">0 MT</b></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn in" data-add="entrada">+ Entrada</button>
+        <button class="btn out" data-add="saida">− Saída</button>
+      </div>
+      <div class="card">
+        <h2>Gastos por categoria <span class="muted small">(este mês)</span></h2>
+        <div id="cats"></div>
+      </div>
+      <div class="card">
+        <h2>Últimos registos</h2>
+        <ul class="list" id="recent"></ul>
+      </div>
+    </section>
+
+    <!-- RELATÓRIOS -->
+    <section class="view" id="v-rel">
+      <div class="seg" id="relSeg">
+        <button data-p="semana" class="on">Semana</button>
+        <button data-p="mes">Mês</button>
+      </div>
+      <div class="card">
+        <div class="calhead noprint">
+          <button id="relPrev" aria-label="Anterior">‹</button>
+          <b id="relTitle"></b>
+          <button id="relNext" aria-label="Seguinte">›</button>
+        </div>
+        <div class="row2" style="margin-bottom:12px">
+          <div><div class="muted small">Entradas</div><b class="amt in" id="rIn"></b></div>
+          <div><div class="muted small">Saídas</div><b class="amt out" id="rOut"></b></div>
+        </div>
+        <div class="muted small">Saldo do período</div>
+        <div style="font-size:22px;font-weight:700;margin-bottom:10px" id="rBal"></div>
+        <div class="chart" id="rChart" aria-label="Entradas e saídas por dia"></div>
+        <div class="muted small" id="rChartLbl"></div>
+      </div>
+      <div class="card">
+        <h2>Resumo em palavras simples</h2>
+        <div class="summary" id="rSummary"></div>
+      </div>
+      <div class="card">
+        <h2>Registos do período</h2>
+        <ul class="list" id="rList"></ul>
+      </div>
+      <button class="btn ghost noprint" style="width:100%" onclick="window.print()">Guardar / imprimir em PDF</button>
+    </section>
+
+    <!-- CALENDÁRIO -->
+    <section class="view" id="v-cal">
+      <div class="card">
+        <div class="calhead">
+          <button id="calPrev" aria-label="Mês anterior">‹</button>
+          <b id="calTitle"></b>
+          <button id="calNext" aria-label="Mês seguinte">›</button>
+        </div>
+        <div class="cal" id="cal"></div>
+      </div>
+      <div class="card">
+        <h2 id="dayTitle"></h2>
+        <ul class="list" id="dayList"></ul>
+      </div>
+    </section>
+
+    <!-- TODOS -->
+    <section class="view" id="v-all">
+      <div class="card">
+        <input id="search" placeholder="Procurar…" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);margin-bottom:8px">
+        <div class="muted small" id="allCount"></div>
+        <ul class="list" id="allList"></ul>
+      </div>
+    </section>
+  </div>
+
+  <nav class="nav"><div>
+    <button data-v="home" class="on">Início</button>
+    <button data-v="rel">Relatórios</button>
+    <button data-v="cal">Calendário</button>
+    <button data-v="all">Registos</button>
+  </div></nav>
+</div>
+
+<!-- Formulário de registo -->
+<dialog id="txDialog">
+  <form class="form" id="txForm" method="dialog">
+    <h2 id="txTitle">Nova saída</h2>
+    <div class="seg" id="typeSeg">
+      <button type="button" data-t="entrada">Entrada</button>
+      <button type="button" data-t="saida">Saída</button>
+    </div>
+    <label for="fAmount">Valor (MT)</label>
+    <input id="fAmount" class="amount" inputmode="decimal" placeholder="0" required>
+    <label for="fCat">Categoria</label>
+    <select id="fCat"></select>
+    <label for="fDesc">Descrição (opcional)</label>
+    <input id="fDesc" maxlength="120" placeholder="ex.: mercado, salário…">
+    <label for="fDate">Data</label>
+    <input id="fDate" type="date" required>
+    <div class="err" id="txErr"></div>
+    <div class="btns">
+      <button type="button" class="btn ghost" id="txCancel">Cancelar</button>
+      <button type="submit" class="btn primary" id="txSave">Guardar</button>
+    </div>
+    <button type="button" class="linkbtn" id="txDelete" style="color:var(--out);margin-top:10px" hidden>Apagar este registo</button>
+  </form>
+</dialog>
+
+<!-- Definições -->
+<dialog id="setDialog">
+  <form class="form" method="dialog">
+    <h2>Definições</h2>
+    <label for="whoSel">Este telemóvel é de</label>
+    <select id="whoSel">
+      <option value="">(não indicado)</option>
+      <option>Mãe</option>
+      <option>Pai</option>
+    </select>
+    <p class="muted small">Aparece ao lado de cada registo, para saber quem o fez.</p>
+    <div class="btns">
+      <button type="button" class="btn ghost" id="logoutBtn">Sair</button>
+      <button type="submit" class="btn primary" id="setSave">Fechar</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
